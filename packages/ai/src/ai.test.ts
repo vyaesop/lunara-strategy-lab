@@ -217,7 +217,10 @@ function fakeProvider(id: "groq" | "openrouter" | "mistral", scripted: () => str
   };
 }
 
-function throttled(id: "groq" | "openrouter" | "mistral"): AIProvider & { calls: number } {
+function throttled(
+  id: "groq" | "openrouter" | "mistral",
+  code: "rate_limited" | "provider_unavailable" = "rate_limited",
+): AIProvider & { calls: number } {
   const p = {
     id,
     name: id,
@@ -225,7 +228,7 @@ function throttled(id: "groq" | "openrouter" | "mistral"): AIProvider & { calls:
     capabilities: () => new MockProvider().capabilities(),
     generate: async () => {
       p.calls++;
-      throw new AIError("rate_limited", "429", { retryable: true });
+      throw new AIError(code, code, { retryable: true });
     },
     stream: async function* () {},
   };
@@ -236,7 +239,7 @@ describe("fallback chain", () => {
   const schema = z.object({ answer: z.string() });
 
   it("walks the chain for plain calls, retrying only the primary", async () => {
-    const groq = throttled("groq");
+    const groq = throttled("groq", "provider_unavailable");
     const openrouter = throttled("openrouter");
     const routes = routesFor("groq");
     routes["coach.turn"] = {
@@ -262,6 +265,35 @@ describe("fallback chain", () => {
     expect(r.usedFallback).toBe(true);
     expect(groq.calls).toBe(2);
     expect(openrouter.calls).toBe(1);
+  });
+
+  it("does not retry a rate-limited primary", async () => {
+    const groq = throttled("groq", "rate_limited");
+    const routes = routesFor("groq");
+    routes["coach.turn"] = { provider: "groq", model: "g", fallbacks: [{ provider: "mistral", model: "m" }] };
+    const router = new ModelRouter({
+      providers: new Map<"groq" | "mistral", AIProvider>([
+        ["groq", groq],
+        ["mistral", fakeProvider("mistral", () => "ok")],
+      ]),
+      providerConfigs: {},
+      routes,
+      maxRetries: 1,
+    });
+    const r = await router.generate("coach.turn", [{ role: "user", content: "x" }]);
+    expect(r.provider).toBe("mistral");
+    expect(groq.calls).toBe(1);
+  });
+
+  it("maps an error reported in a 200 body to a rate limit", async () => {
+    const p = new OpenAICompatibleProvider({
+      id: "openrouter",
+      name: "OpenRouter",
+      baseUrl: "https://x.test/v1",
+      apiKey: "k",
+      fetchImpl: async () => new Response(JSON.stringify({ error: { code: 429, message: "temporarily rate-limited upstream" } }), { status: 200 }),
+    });
+    await expect(p.generate({ model: "m", messages: [] })).rejects.toMatchObject({ code: "rate_limited", retryable: true });
   });
 
   it("moves structured calls to the next provider when JSON stays invalid", async () => {

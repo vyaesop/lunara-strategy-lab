@@ -190,7 +190,8 @@ export class ModelRouter {
         } catch (err) {
           lastError = err;
           if (call.signal?.aborted) throw err;
-          if (!(isAIError(err) && err.retryable)) break;
+          // Rate limits go straight to the next target: an instant retry only burns quota.
+          if (!(isAIError(err) && err.retryable) || err.code === "rate_limited") break;
         }
       }
     }

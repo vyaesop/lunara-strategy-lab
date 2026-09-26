@@ -29,6 +29,8 @@ interface ChatCompletionResponse {
   choices?: Array<{ message?: { content?: string | null }; finish_reason?: string | null }>;
   usage?: { prompt_tokens?: number; completion_tokens?: number };
   model?: string;
+  /** Some gateways (OpenRouter) report upstream failures in a 200 body. */
+  error?: { code?: number | string; message?: string };
 }
 
 interface EmbeddingResponse {
@@ -98,7 +100,13 @@ export class OpenAICompatibleProvider implements AIProvider {
     if (options.jsonMode) body.response_format = { type: "json_object" };
     const data = await this.post<ChatCompletionResponse>("/chat/completions", body, options.signal);
     const choice = data.choices?.[0];
-    if (!choice) throw new AIError("invalid_response", `${this.name} returned no choices`);
+    if (!choice) {
+      if (data.error) {
+        const rateLimited = String(data.error.code) === "429";
+        throw new AIError(rateLimited ? "rate_limited" : "provider_unavailable", `${this.name}: ${data.error.message ?? "upstream error"}`, { retryable: true });
+      }
+      throw new AIError("invalid_response", `${this.name} returned no choices`);
+    }
     const finish = choice.finish_reason;
     return {
       text: choice.message?.content ?? "",

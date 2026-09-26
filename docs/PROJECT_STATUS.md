@@ -27,7 +27,7 @@ web https://lunara-strategy-lab.vercel.app, API https://strat-api.vercel.app
 | Hosting | Vercel projects `strat-api` (bundled Node function, migrations on production builds) and `lunara-strategy-lab` (static Vite build with SPA rewrite), both deploying from `main`; see `docs/DEPLOYMENT.md` | Live smoke test: sign-up, session, coach reply, reload, CORS, deep links, in a phone-sized browser with no console errors |
 | Design | Lenis smooth scroll on GSAP's ticker; SplitText headings; DrawSVG compass; pinned landing narrative; route transitions; gliding sidebar indicator; count-ups; reduced-motion safe | screenshots in both themes and on a phone viewport, full E2E with animations on |
 
-Totals at this update: 17 test files, 151 unit/API tests; 13 Playwright tests
+Totals at this update: 17 test files, 153 unit/API tests; 13 Playwright tests
 booting the API (PGlite memory, mock AI) and Vite themselves.
 
 ## Not yet done
@@ -78,7 +78,7 @@ send private content (council, reading, projects, missions, negotiations). See
 pnpm install
 pnpm typecheck          # 6 workspaces clean
 pnpm lint               # clean
-pnpm test               # 17 files, 151 tests
+pnpm test               # 17 files, 153 tests
 pnpm test:e2e           # 13 Playwright tests
 pnpm --filter @lunara/client build
 pnpm dev                # api :8787 + web :5173
