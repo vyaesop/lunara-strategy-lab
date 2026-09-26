@@ -1,0 +1,184 @@
+@import "tailwindcss";
+
+/* ── Design tokens ─────────────────────────────────────────────────────── */
+:root {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Newsreader", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* light: warm paper, ink text, brass accent */
+  --bg: #f6f4ef;
+  --bg-elevated: #fdfcf9;
+  --surface: #ffffff;
+  --surface-muted: #efece5;
+  --border: #dcd7cc;
+  --border-strong: #b8b1a3;
+  --text: #16191d;
+  --text-muted: #5a6068;
+  --text-faint: #8a9099;
+  --accent: #9a6b1c;
+  --accent-strong: #7d5514;
+  --accent-soft: #f3e6cc;
+  --info: #1f6f8b;
+  --info-soft: #dcecf2;
+  --success: #2f7a4f;
+  --success-soft: #dcefe3;
+  --warning: #a35b0f;
+  --warning-soft: #f7e6d0;
+  --danger: #a13a3a;
+  --danger-soft: #f6dedd;
+  --ring: #9a6b1c;
+  --shadow: 0 1px 2px rgba(20, 20, 20, 0.06), 0 8px 24px -12px rgba(20, 20, 20, 0.18);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"],
+:root:not([data-theme="light"]):where([data-theme="dark"]) {
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0f14;
+    --bg-elevated: #10161d;
+    --surface: #141b23;
+    --surface-muted: #1a222c;
+    --border: #243040;
+    --border-strong: #354558;
+    --text: #e8ecf1;
+    --text-muted: #a3adb9;
+    --text-faint: #6f7a88;
+    --accent: #d4a24c;
+    --accent-strong: #e6b866;
+    --accent-soft: #2c2415;
+    --info: #63b3d1;
+    --info-soft: #12303b;
+    --success: #6fc493;
+    --success-soft: #133124;
+    --warning: #e0a458;
+    --warning-soft: #33240f;
+    --danger: #e07070;
+    --danger-soft: #3a1a1a;
+    --ring: #d4a24c;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px -14px rgba(0, 0, 0, 0.7);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0b0f14;
+  --bg-elevated: #10161d;
+  --surface: #141b23;
+  --surface-muted: #1a222c;
+  --border: #243040;
+  --border-strong: #354558;
+  --text: #e8ecf1;
+  --text-muted: #a3adb9;
+  --text-faint: #6f7a88;
+  --accent: #d4a24c;
+  --accent-strong: #e6b866;
+  --accent-soft: #2c2415;
+  --info: #63b3d1;
+  --info-soft: #12303b;
+  --success: #6fc493;
+  --success-soft: #133124;
+  --warning: #e0a458;
+  --warning-soft: #33240f;
+  --danger: #e07070;
+  --danger-soft: #3a1a1a;
+  --ring: #d4a24c;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px -14px rgba(0, 0, 0, 0.7);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-ring: var(--ring);
+  --shadow-panel: var(--shadow);
+}
+
+/* ── Base ───────────────────────────────────────────────────────────────── */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  padding-top: env(safe-area-inset-top);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* subtle grid texture for the command-center feel */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--border) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--border) 55%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse at top, black 20%, transparent 75%);
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+.prose-coach p + p {
+  margin-top: 0.6em;
+}
+
+@media (max-width: 767px) {
+  .safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 64px);
+  }
+}

@@ -1,0 +1,232 @@
+import type { SimulationDefinition } from "@lunara/schemas";
+
+const CREATED = "2026-09-26T00:00:00.000Z";
+
+/**
+ * Carnegie and the Panic of 1873. Historical claims are labelled by
+ * certainty; resource numbers and option effects are a simulation device.
+ */
+export const carnegie1873: SimulationDefinition = {
+  public: {
+    schemaVersion: 1,
+    createdAt: CREATED,
+    updatedAt: CREATED,
+    id: "sim-carnegie-1873",
+    slug: "carnegie-1873",
+    version: 1,
+    status: "published",
+    title: "Building Through the Panic",
+    figure: "Andrew Carnegie",
+    period: "1873–1875",
+    summary: "The Panic of 1873 hits while your new steel works is half built. Partners want to stop. Decide whether a depression is a reason to retreat or the cheapest moment to build.",
+    difficulty: 3,
+    estimatedMinutes: 25,
+    learningObjectives: [
+      "Separate cash-flow risk from the long-run economics of a decision",
+      "Recognise when a downturn changes input prices in your favour",
+      "Commit to a cost position and a pricing stance that reinforce each other",
+    ],
+    background:
+      "In 1872–73 Andrew Carnegie and his partners began building a large Bessemer steel-rail works, the Edgar Thomson Steel Works, at Braddock near Pittsburgh. In September 1873 the failure of Jay Cooke & Company triggered a financial panic and a prolonged depression. Demand for rails fell, credit tightened, and several rival ventures stalled or failed. Carnegie chose to continue construction, taking advantage of falling prices for labour and materials, and the works began producing rails in 1875. Carnegie's approach in this period, close attention to costs, running the mill at full capacity, and expanding when others could not, is widely regarded by historians as the foundation of his later dominance in steel. The numbers in this simulation are a teaching device; the sequence of events is drawn from standard biographies.",
+    role: "You are Carnegie in the autumn of 1873. You hold a large stake in the unfinished works and other investments; your partners are worried; credit is scarce. The resource values are a simulation device, not accounts.",
+    resources: [
+      { key: "cash", label: "Cash on hand", description: "Liquidity to pay contractors and wages.", initial: 60, min: 0, max: 200, visible: true },
+      { key: "construction", label: "Construction progress", description: "Toward a producing mill.", initial: 40, min: 0, max: 100, visible: true },
+      { key: "cost_position", label: "Cost position", description: "How cheaply you will be able to make rails, relative to rivals.", initial: 50, min: 0, max: 100, visible: true },
+      { key: "partner_confidence", label: "Partner confidence", description: "Willingness of partners to keep backing you.", initial: 50, min: 0, max: 100, visible: true },
+      { key: "market_demand", label: "Rail demand", description: "Orders available when you can produce. You cannot see this precisely.", initial: 35, min: 0, max: 100, visible: false },
+    ],
+    sources: [
+      { id: "src-nasaw", title: "Andrew Carnegie", author: "David Nasaw", publication: "Penguin Press", year: 2006, url: null, locator: null, type: "book", verification: "partially_verified", note: "Comprehensive biography; page references not verified in this build." },
+      { id: "src-wall", title: "Andrew Carnegie", author: "Joseph Frazier Wall", publication: "Oxford University Press", year: 1970, url: null, locator: null, type: "book", verification: "partially_verified", note: "Standard scholarly biography." },
+      { id: "src-livesay", title: "Andrew Carnegie and the Rise of Big Business", author: "Harold C. Livesay", publication: "Little, Brown", year: 1975, url: null, locator: null, type: "book", verification: "partially_verified", note: "Short business-focused account of Carnegie's cost strategy." },
+      { id: "src-autobio", title: "Autobiography of Andrew Carnegie", author: "Andrew Carnegie", publication: "Houghton Mifflin", year: 1920, url: null, locator: null, type: "primary_document", verification: "partially_verified", note: "Posthumously published; self-presentation should be read critically." },
+    ],
+    claims: [
+      { id: "cl-panic", text: "The Panic of 1873 began in September 1873 with the failure of Jay Cooke & Company and was followed by a multi-year depression.", certainty: "established", sourceIds: ["src-nasaw", "src-wall"] },
+      { id: "cl-works", text: "Construction of the Edgar Thomson Steel Works at Braddock began in 1873 and the works started producing steel rails in 1875.", certainty: "established", sourceIds: ["src-nasaw", "src-wall", "src-livesay"] },
+      { id: "cl-continue", text: "Carnegie continued building the works through the depression rather than suspending construction.", certainty: "established", sourceIds: ["src-nasaw", "src-wall"] },
+      { id: "cl-cheap", text: "Falling prices for labour and materials during the depression lowered the cost of completing the works; historians present this as a significant advantage Carnegie gained by building through the downturn.", certainty: "interpretation", sourceIds: ["src-livesay", "src-nasaw"] },
+      { id: "cl-cost", text: "Carnegie's characteristic strategy was strict cost accounting, running the mill at full capacity, and cutting price to keep it full.", certainty: "established", sourceIds: ["src-livesay", "src-wall"] },
+      { id: "cl-partners", text: "Some partners were reluctant to keep investing during the panic; the exact positions of individual partners are described differently by biographers.", certainty: "interpretation", sourceIds: ["src-nasaw", "src-wall"] },
+      { id: "cl-motive", text: "How much of Carnegie's decision reflected foresight about the cycle, and how much reflected that he had few alternatives once committed, is a matter of interpretation.", certainty: "disputed", sourceIds: ["src-nasaw", "src-livesay"] },
+    ],
+    expectedDimensions: ["decision_quality", "risk_assessment", "systems_thinking"],
+    tags: ["history", "carnegie", "business", "downturn"],
+  },
+  hidden: {
+    simulationId: "sim-carnegie-1873",
+    version: 1,
+    evidence: {
+      "ev-prices": "Quotes from contractors and suppliers are coming in well below the spring's prices; labour is plentiful. (Simulation device consistent with claim cl-cheap.)",
+      "ev-rivals": "Word from Pittsburgh: two rival Bessemer projects have stopped work; one is trying to sell equipment. (Simulation device.)",
+    },
+    turns: [
+      {
+        id: "t-panic",
+        title: "September 1873",
+        situation:
+          "Jay Cooke & Company has failed. Banks are calling loans; the stock exchange has closed for days. Your steel works is a half-built shell at Braddock with contractors on site. Partners are asking whether to stop and wait out the crisis. Rails will not be needed until the railroads start building again, and nobody knows when that will be.",
+        intelligence: [
+          "Contractors will accept lower rates to keep crews working.",
+          "Rail orders have collapsed for now; the depression's length is unknown.",
+          "Your other investments could be sold, at a loss, to raise cash.",
+        ],
+        hidden: ["Input prices keep falling through 1874, so continuing raises the cost position substantially.", "Demand recovers slowly; being first to produce cheaply matters more than being early."],
+        terminal: false,
+        options: [
+          {
+            id: "o-continue",
+            label: "Keep building, renegotiate every contract downward",
+            description: "Press on with construction while prices are low; cut costs at every step.",
+            requires: [{ resource: "cash", op: ">=", value: 30 }],
+            effects: [{ resource: "cash", delta: -30 }, { resource: "construction", delta: 25 }, { resource: "cost_position", delta: 20 }, { resource: "partner_confidence", delta: -10 }],
+            reveals: ["ev-prices", "ev-rivals"],
+            historicalMatch: true,
+            counterfactualNote: "",
+            consequence: {
+              narration: "Crews stay on at reduced rates and materials arrive cheaper than budgeted. Two rival projects across the river stop dead. Your partners are nervous about cash but the works rises faster than planned.",
+              effects: [{ resource: "market_demand", delta: -5 }],
+              nextTurnId: null,
+            },
+          },
+          {
+            id: "o-halt",
+            label: "Halt construction and preserve cash",
+            description: "Stop work, keep the site secure, resume when the economy turns.",
+            requires: [],
+            effects: [{ resource: "cash", delta: -5 }, { resource: "construction", delta: 0 }, { resource: "cost_position", delta: -10 }, { resource: "partner_confidence", delta: 15 }],
+            reveals: ["ev-rivals"],
+            historicalMatch: false,
+            counterfactualNote: "COUNTERFACTUAL: Carnegie did not halt construction. Simulated consequence follows.",
+            consequence: {
+              narration: "The site sits idle. Partners are relieved. But the contractors who would have worked cheaply drift away, and when you look to restart, the advantage of the downturn has passed to whoever kept building.",
+              effects: [{ resource: "cost_position", delta: -5 }],
+              nextTurnId: null,
+            },
+          },
+          {
+            id: "o-sell",
+            label: "Sell out of steel",
+            description: "Offer your stake to the partners or outsiders and retreat to safer holdings.",
+            requires: [],
+            effects: [{ resource: "cash", delta: 20 }, { resource: "construction", delta: -40 }, { resource: "cost_position", delta: -30 }, { resource: "partner_confidence", delta: -30 }],
+            reveals: [],
+            historicalMatch: false,
+            counterfactualNote: "COUNTERFACTUAL: Carnegie did not sell. Simulated consequence follows.",
+            consequence: {
+              narration: "There are no buyers at any price you would accept. You keep the stake by default, having signalled to every partner that you wanted out.",
+              effects: [],
+              nextTurnId: null,
+            },
+          },
+        ],
+      },
+      {
+        id: "t-capital",
+        title: "1874: the squeeze",
+        situation:
+          "The depression deepens. The works needs another round of capital to finish; banks will not lend on a mill that has not produced a rail. You own other investments that could be sold, though at depressed prices, and there are men who would buy into the works cheaply.",
+        intelligence: [
+          "Selling other holdings now realises losses but keeps control.",
+          "New partners would bring cash but take a share and a say.",
+          "Short-term credit is available only at ruinous rates.",
+        ],
+        hidden: ["Finishing in 1875 matters: the first low-cost producer captures the recovery."],
+        terminal: false,
+        options: [
+          {
+            id: "o-liquidate",
+            label: "Sell other holdings to fund completion",
+            description: "Accept losses on peripheral investments to keep control and finish the mill.",
+            requires: [],
+            effects: [{ resource: "cash", delta: 40 }, { resource: "construction", delta: 30 }, { resource: "partner_confidence", delta: 10 }],
+            reveals: [],
+            historicalMatch: true,
+            counterfactualNote: "",
+            consequence: { narration: "The sales hurt, but the works is funded to completion and remains yours to run. Biographers differ on exactly which holdings went and when; the direction is not in doubt.", effects: [{ resource: "cost_position", delta: 5 }], nextTurnId: null },
+          },
+          {
+            id: "o-borrow",
+            label: "Borrow short at high rates",
+            description: "Take the expensive credit and hope rails sell before the notes come due.",
+            requires: [],
+            effects: [{ resource: "cash", delta: 35 }, { resource: "construction", delta: 25 }, { resource: "cost_position", delta: -10 }, { resource: "partner_confidence", delta: -15 }],
+            reveals: [],
+            historicalMatch: false,
+            counterfactualNote: "COUNTERFACTUAL: simulated branch.",
+            consequence: { narration: "The mill nears completion carrying debt that eats the cost advantage you built. Each month without orders the notes get heavier.", effects: [], nextTurnId: null },
+          },
+          {
+            id: "o-newpartners",
+            label: "Bring in new partners at a discount",
+            description: "Sell shares cheaply to raise the capital.",
+            requires: [],
+            effects: [{ resource: "cash", delta: 45 }, { resource: "construction", delta: 30 }, { resource: "partner_confidence", delta: 5 }, { resource: "cost_position", delta: -5 }],
+            reveals: [],
+            historicalMatch: false,
+            counterfactualNote: "COUNTERFACTUAL: simulated branch.",
+            consequence: { narration: "The works is funded, and you now answer to more people with less appetite for the cost discipline you intend to impose.", effects: [], nextTurnId: null },
+          },
+        ],
+      },
+      {
+        id: "t-pricing",
+        title: "1875: the first rails",
+        situation:
+          "The Edgar Thomson works is producing. Demand is thin but returning. Established rail makers are proposing a pooling agreement to hold prices up. Your costs are lower than theirs, if you run the mill hard.",
+        intelligence: ["A pool keeps prices high but limits your output.", "Undercutting fills your mill and starves rivals, but invites a price war.", "Railroads are ordering again, cautiously."],
+        hidden: ["Running full at low prices converts your cost advantage into market share; the pool converts it into nothing."],
+        terminal: true,
+        options: [
+          {
+            id: "o-runfull",
+            label: "Run full and price to keep it full",
+            description: "Use the cost advantage: take orders below the pool price and keep the furnaces going.",
+            requires: [{ resource: "cost_position", op: ">=", value: 55 }],
+            effects: [{ resource: "cash", delta: 20 }, { resource: "cost_position", delta: 10 }, { resource: "partner_confidence", delta: 15 }],
+            reveals: [],
+            historicalMatch: true,
+            counterfactualNote: "",
+            consequence: { narration: "Orders come to the cheapest producer. Rivals who halted in 1873 cannot match your costs; the depression that frightened your partners becomes the moment your position was made.", effects: [], nextTurnId: null },
+          },
+          {
+            id: "o-pool",
+            label: "Join the pool at high prices",
+            description: "Accept the price agreement and its output limits.",
+            requires: [],
+            effects: [{ resource: "cash", delta: 10 }, { resource: "cost_position", delta: -5 }, { resource: "partner_confidence", delta: 5 }],
+            reveals: [],
+            historicalMatch: false,
+            counterfactualNote: "COUNTERFACTUAL: simulated branch.",
+            consequence: { narration: "Prices hold for a season. Your mill runs at two-thirds, your cost advantage earns nothing, and the pool's weakest members set the pace.", effects: [], nextTurnId: null },
+          },
+          {
+            id: "o-limit",
+            label: "Limit output and wait for better prices",
+            description: "Produce only for firm orders at full price.",
+            requires: [],
+            effects: [{ resource: "cash", delta: 0 }, { resource: "cost_position", delta: -10 }, { resource: "partner_confidence", delta: -10 }],
+            reveals: [],
+            historicalMatch: false,
+            counterfactualNote: "COUNTERFACTUAL: simulated branch.",
+            consequence: { narration: "An idle Bessemer works is the most expensive object in Pennsylvania. Fixed costs run on while the furnaces cool.", effects: [], nextTurnId: null },
+          },
+        ],
+      },
+    ],
+    historicalRecord: {
+      decision: "Carnegie kept building the Edgar Thomson works through the depression, funded completion in part by drawing on his other resources, and once producing pursued low costs, full operation and aggressive pricing.",
+      outcome: "The works began producing rails in 1875 and became the core of Carnegie's steel business; the cost-and-volume strategy it embodied is the one most associated with his later dominance.",
+      sourceIds: ["src-nasaw", "src-wall", "src-livesay"],
+    },
+    rubric: [
+      { id: "cashflow_vs_economics", title: "Cash-flow risk versus economics", description: "Distinguished the short-run liquidity problem from the long-run cost advantage, and handled both.", weight: 3, skill: "decision_quality", levels: [{ score: 0, descriptor: "Treated the panic as a reason to stop or ignored liquidity" }, { score: 0.5, descriptor: "Saw one side" }, { score: 1, descriptor: "Managed liquidity while protecting the long-run position" }] },
+      { id: "downturn_prices", title: "Input prices in a downturn", description: "Recognised that the depression lowered the cost of building and reasoned from it.", weight: 2, skill: "systems_thinking", levels: [{ score: 0, descriptor: "No mention" }, { score: 1, descriptor: "Explicit in the rationale" }] },
+      { id: "reinforcing", title: "Reinforcing choices", description: "Chose a pricing and output stance consistent with the cost position built earlier.", weight: 2, skill: "risk_assessment", levels: [{ score: 0, descriptor: "Contradictory choices" }, { score: 1, descriptor: "Cost position and pricing reinforce each other" }] },
+    ],
+    debrief:
+      "The scenario turns on a distinction that is easy to state and hard to act on under stress: liquidity risk is real and must be managed, but it is not the same as the economics of the investment. The panic made the mill cheaper to build and its rivals weaker; those are reasons to continue, provided cash can be found. The historical Carnegie found it by accepting losses elsewhere and keeping control, then made the cost position pay by running full and pricing to fill the mill. Learners who halted preserved partner comfort and gave up the one advantage the downturn offered. Learners who continued but then joined the pool built the advantage and declined to use it. Notice also the hidden variable: rail demand. You could not see it precisely, and the strong rationales did not pretend to; they argued from what a low-cost producer can do whenever demand returns.",
+    coachNotes: "If the learner halts, ask what the depression does to the cost of building. If they continue but limit output later, ask what the cost advantage was for.",
+  },
+};

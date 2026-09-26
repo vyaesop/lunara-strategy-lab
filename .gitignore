@@ -1,0 +1,36 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+build/
+out/
+*.tsbuildinfo
+.vite/
+
+# env and secrets
+.env
+.env.*
+!.env.example
+service-account*.json
+*.keystore
+*.jks
+
+# local data (PGlite dev database)
+.data/
+
+# capacitor native projects are generated; keep them out until a release branch needs them
+apps/client/android/
+apps/client/ios/
+
+# misc
+.DS_Store
+npm-debug.log*
+pnpm-debug.log*
+coverage/
+.wrangler/
+
+# playwright
+apps/client/test-results/
+apps/client/playwright-report/
