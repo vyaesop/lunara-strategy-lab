@@ -7,6 +7,7 @@ import type {
   ChatMessage,
   GenerateResult,
   ProviderConfig,
+  RouteTarget,
   RoutingTable,
   TaskRoute,
   UsageEvent,
@@ -91,10 +92,30 @@ export class ModelRouter {
     return p;
   }
 
-  /** Whether the route for a task may receive private user content. */
-  allowsUserContent(task: AITask): boolean {
+  /**
+   * Ordered targets for a task: primary, then `fallback`, then `fallbacks`,
+   * deduplicated and limited to configured providers. With private user
+   * content, only providers approved for it are kept.
+   */
+  chain(task: AITask, containsUserContent = false): RouteTarget[] {
     const route = this.route(task);
-    return this.providerConfigs[route.provider]?.allowsUserContent ?? false;
+    const all: RouteTarget[] = [
+      { provider: route.provider, model: route.model },
+      ...(route.fallback ? [route.fallback] : []),
+      ...(route.fallbacks ?? []),
+    ];
+    const seen = new Set<string>();
+    return all.filter((t) => {
+      const key = `${t.provider}:${t.model}`;
+      if (seen.has(key) || !this.providers.has(t.provider)) return false;
+      seen.add(key);
+      return !containsUserContent || (this.providerConfigs[t.provider]?.allowsUserContent ?? false);
+    });
+  }
+
+  /** Whether any target for a task may receive private user content. */
+  allowsUserContent(task: AITask): boolean {
+    return this.chain(task, true).length > 0;
   }
 
   private async attempt(
@@ -149,29 +170,29 @@ export class ModelRouter {
 
   async generate(task: AITask, messages: ChatMessage[], call: CallOptions = {}): Promise<RoutedResult> {
     const route = this.route(task);
-    if (call.containsUserContent && !this.allowsUserContent(task)) {
+    const targets = this.chain(task, call.containsUserContent ?? false);
+    if (targets.length === 0) {
       throw new AIError(
         "user_content_not_allowed",
-        `Route for ${task} (${route.provider}) is not approved for private user content`,
+        `No route for ${task} (${route.provider}) is approved for private user content`,
       );
     }
     const primary = { provider: route.provider, model: route.model };
     let lastError: unknown;
-    for (let i = 0; i <= this.maxRetries; i++) {
-      try {
-        const r = await this.attempt(task, primary, messages, route, call);
-        return { ...r, task, usedFallback: false };
-      } catch (err) {
-        lastError = err;
-        if (!(isAIError(err) && err.retryable)) break;
+    for (const [index, target] of targets.entries()) {
+      const isPrimary = target.provider === primary.provider && target.model === primary.model;
+      // The primary gets bounded retries; each fallback gets one attempt.
+      const attempts = isPrimary ? this.maxRetries + 1 : 1;
+      for (let i = 0; i < attempts; i++) {
+        try {
+          const r = await this.attempt(task, target, messages, route, call);
+          return { ...r, task, usedFallback: index > 0 || !isPrimary };
+        } catch (err) {
+          lastError = err;
+          if (call.signal?.aborted) throw err;
+          if (!(isAIError(err) && err.retryable)) break;
+        }
       }
-    }
-    if (route.fallback && this.providers.has(route.fallback.provider)) {
-      if (call.containsUserContent && !(this.providerConfigs[route.fallback.provider]?.allowsUserContent ?? false)) {
-        throw lastError;
-      }
-      const r = await this.attempt(task, route.fallback, messages, route, call);
-      return { ...r, task, usedFallback: true };
     }
     throw lastError;
   }
@@ -181,17 +202,40 @@ export class ModelRouter {
     schema: S,
     messages: ChatMessage[],
     call: CallOptions = {},
-  ): Promise<StructuredResult<z.infer<S>> & { task: AITask }> {
+  ): Promise<StructuredResult<z.infer<S>> & { task: AITask; usedFallback: boolean }> {
     const route = this.route(task);
-    if (call.containsUserContent && !this.allowsUserContent(task)) {
-      throw new AIError("user_content_not_allowed", `Route for ${task} is not approved for private user content`);
+    const targets = this.chain(task, call.containsUserContent ?? false);
+    if (targets.length === 0) {
+      throw new AIError("user_content_not_allowed", `No route for ${task} is approved for private user content`);
     }
-    const provider = this.provider(route.provider);
+    let lastError: unknown;
+    for (const [index, target] of targets.entries()) {
+      try {
+        const r = await this.structuredAttempt(task, schema, target, messages, route, call);
+        return { ...r, task, usedFallback: index > 0 };
+      } catch (err) {
+        lastError = err;
+        if (call.signal?.aborted) throw err;
+        // Any failure (throttling, outage, invalid JSON after repair) moves to the next target.
+      }
+    }
+    throw lastError;
+  }
+
+  private async structuredAttempt<S extends z.ZodType>(
+    task: AITask,
+    schema: S,
+    target: RouteTarget,
+    messages: ChatMessage[],
+    route: TaskRoute,
+    call: CallOptions,
+  ): Promise<StructuredResult<z.infer<S>>> {
+    const provider = this.provider(target.provider);
     const { signal, clear } = withTimeout(call.signal, route.timeoutMs ?? this.defaultTimeoutMs);
     const started = Date.now();
     try {
       const result = await generateStructured(provider, schema, {
-        model: route.model,
+        model: target.model,
         messages,
         temperature: call.temperature ?? route.temperature ?? 0.2,
         maxOutputTokens: call.maxOutputTokens ?? route.maxOutputTokens,
@@ -200,26 +244,26 @@ export class ModelRouter {
       for (const c of result.calls) {
         await this.record({
           task,
-          provider: route.provider,
-          model: route.model,
+          provider: target.provider,
+          model: target.model,
           usage: c.usage,
           latencyMs: Math.round((Date.now() - started) / result.calls.length),
-          estimatedCostUsd: estimateCost(provider, route.model, c.usage),
+          estimatedCostUsd: estimateCost(provider, target.model, c.usage),
           ok: true,
           errorCode: null,
         });
       }
-      return { ...result, task };
+      return result;
     } catch (err) {
       await this.record({
         task,
-        provider: route.provider,
-        model: route.model,
+        provider: target.provider,
+        model: target.model,
         usage: { inputTokens: 0, outputTokens: 0 },
         latencyMs: Date.now() - started,
         estimatedCostUsd: 0,
         ok: false,
-        errorCode: isAIError(err) ? err.code : "provider_error",
+        errorCode: signal.aborted ? "timeout" : isAIError(err) ? err.code : "provider_error",
       });
       throw err;
     } finally {

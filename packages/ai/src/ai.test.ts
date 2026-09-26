@@ -204,3 +204,127 @@ describe("HTTP adapters (mocked fetch)", () => {
     expect(seenUrl).not.toContain("secret");
   });
 });
+
+/** A provider with a chosen id that delegates to a scripted mock. */
+function fakeProvider(id: "groq" | "openrouter" | "mistral", scripted: () => string): AIProvider {
+  const inner = new MockProvider({ scripted });
+  return {
+    id,
+    name: id,
+    capabilities: () => inner.capabilities(),
+    generate: async (o) => ({ ...(await inner.generate(o)), provider: id }),
+    stream: async function* () {},
+  };
+}
+
+function throttled(id: "groq" | "openrouter" | "mistral"): AIProvider & { calls: number } {
+  const p = {
+    id,
+    name: id,
+    calls: 0,
+    capabilities: () => new MockProvider().capabilities(),
+    generate: async () => {
+      p.calls++;
+      throw new AIError("rate_limited", "429", { retryable: true });
+    },
+    stream: async function* () {},
+  };
+  return p;
+}
+
+describe("fallback chain", () => {
+  const schema = z.object({ answer: z.string() });
+
+  it("walks the chain for plain calls, retrying only the primary", async () => {
+    const groq = throttled("groq");
+    const openrouter = throttled("openrouter");
+    const routes = routesFor("groq");
+    routes["coach.turn"] = {
+      provider: "groq",
+      model: "g",
+      fallbacks: [
+        { provider: "openrouter", model: "o" },
+        { provider: "mistral", model: "m" },
+      ],
+    };
+    const router = new ModelRouter({
+      providers: new Map<"groq" | "openrouter" | "mistral", AIProvider>([
+        ["groq", groq],
+        ["openrouter", openrouter],
+        ["mistral", fakeProvider("mistral", () => "hello from mistral")],
+      ]),
+      providerConfigs: {},
+      routes,
+      maxRetries: 1,
+    });
+    const r = await router.generate("coach.turn", [{ role: "user", content: "x" }]);
+    expect(r.provider).toBe("mistral");
+    expect(r.usedFallback).toBe(true);
+    expect(groq.calls).toBe(2);
+    expect(openrouter.calls).toBe(1);
+  });
+
+  it("moves structured calls to the next provider when JSON stays invalid", async () => {
+    const events: UsageEvent[] = [];
+    const routes = routesFor("groq");
+    routes["coach.assess"] = { provider: "groq", model: "g", fallbacks: [{ provider: "openrouter", model: "o" }] };
+    const router = new ModelRouter({
+      providers: new Map<"groq" | "openrouter", AIProvider>([
+        ["groq", fakeProvider("groq", () => "not json")],
+        ["openrouter", fakeProvider("openrouter", () => '{"answer":"ok"}')],
+      ]),
+      providerConfigs: {},
+      routes,
+      usageSink: { record: (e) => void events.push(e) },
+    });
+    const r = await router.generateStructured("coach.assess", schema, [{ role: "user", content: "q" }]);
+    expect(r.value.answer).toBe("ok");
+    expect(r.usedFallback).toBe(true);
+    expect(events.map((e) => [e.provider, e.ok])).toEqual([
+      ["groq", false],
+      ["openrouter", true],
+    ]);
+  });
+
+  it("sends private content only to approved providers in the chain", async () => {
+    const groq = throttled("groq");
+    const routes = routesFor("groq");
+    routes["coach.turn"] = { provider: "groq", model: "g", fallbacks: [{ provider: "mistral", model: "m" }] };
+    const router = new ModelRouter({
+      providers: new Map<"groq" | "mistral", AIProvider>([
+        ["groq", groq],
+        ["mistral", fakeProvider("mistral", () => "private ok")],
+      ]),
+      providerConfigs: { groq: { id: "groq", allowsUserContent: false }, mistral: { id: "mistral", allowsUserContent: true } },
+      routes,
+    });
+    expect(router.allowsUserContent("coach.turn")).toBe(true);
+    expect(router.allowsUserContent("coach.hint")).toBe(false);
+    const r = await router.generate("coach.turn", [{ role: "user", content: "notes" }], { containsUserContent: true });
+    expect(r.provider).toBe("mistral");
+    expect(groq.calls).toBe(0);
+    await expect(
+      router.generate("coach.hint", [{ role: "user", content: "notes" }], { containsUserContent: true }),
+    ).rejects.toMatchObject({ code: "user_content_not_allowed" });
+  });
+
+  it("builds presets and AI_FALLBACKS from env, using tier defaults for bare providers", () => {
+    const ai = buildAIFromEnv({
+      AI_PROVIDER_DEFAULT: "groq",
+      GROQ_API_KEY: "k",
+      OPENROUTER_API_KEY: "o",
+      MISTRAL_API_KEY: "m",
+      CLOUDFLARE_API_TOKEN: "c",
+      CLOUDFLARE_ACCOUNT_ID: "acct",
+      AI_FALLBACKS: "openrouter, mistral:mistral-large-latest, cerebras, nonsense",
+    });
+    expect([...ai.providers.keys()]).toEqual(expect.arrayContaining(["groq", "openrouter", "mistral", "cloudflare"]));
+    expect(ai.providers.has("cerebras")).toBe(false);
+    expect(ai.routes["coach.turn"].fallbacks).toEqual([
+      { provider: "openrouter", model: "qwen/qwen3.8-27b:free" },
+      { provider: "mistral", model: "mistral-large-latest" },
+    ]);
+    expect(ai.routes["coach.assess"].fallbacks?.[0]).toEqual({ provider: "openrouter", model: "nvidia/nemotron-3-super-120b-a12b:free" });
+    expect(ai.routes.embed.fallbacks).toBeUndefined();
+  });
+});

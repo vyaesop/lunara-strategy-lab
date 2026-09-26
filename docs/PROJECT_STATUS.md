@@ -21,27 +21,35 @@ Lenis + GSAP design pass (ADR-0006). Code lives in the private repo
 | 6 Real-world | Strategy Lab projects (10 sections, AI suggestions accepted per item); decision journal with predictions, resolution and Brier calibration (shown after 10); precomputed daily briefing (10 puzzles, 14 questions, review, prediction prompt); negotiation role-play with deterministic acceptance and AI-voiced counterpart (2 scenarios); missions (2 curated + custom from projects) with debrief; Meridian trading game (seeded, deterministic, quarterly reports, personal rank); monthly master challenge (8 stages incl. adversarial review, compared with own attempts) | engine tests, API tests, `phase6*.spec.ts` |
 
 | 7 Hardening | Data export, admin overview (usage, routing, content validation) behind a server-side flag, body limits, request ids and structured error logs, client error boundary, route-level code splitting, PWA service worker, deployment, security, backup and release docs, Capacitor Android project | API tests, full E2E |
+| Providers + Neon | The owner's Neon database is connected through a gitignored `apps/api/.env` (loaded automatically, ignored by tests); migrations applied and a sign-up/session smoke test passed on 2026-09-26. Presets for Groq, OpenRouter, Gemini, Mistral, Cerebras, NVIDIA, Cloudflare, Ollama and any OpenAI-compatible endpoint; an ordered `AI_FALLBACKS` chain for plain and structured calls; private content only reaches approved providers | AI unit tests, API tests, full E2E |
 | Design | Lenis smooth scroll on GSAP's ticker; SplitText headings; DrawSVG compass; pinned landing narrative; route transitions; gliding sidebar indicator; count-ups; reduced-motion safe | screenshots in both themes and on a phone viewport, full E2E with animations on |
 
-Totals at this update: 17 test files, 146 unit/API tests; 13 Playwright tests
+Totals at this update: 17 test files, 150 unit/API tests; 13 Playwright tests
 booting the API (PGlite memory, mock AI) and Vite themselves.
 
 ## Not yet done
 
 1. **Real-provider run**: everything above runs against the deterministic
    mock (which echoes each prompt's example JSON). Prompt quality, structured
-   repair and latency must be checked with a Gemini or Groq key.
-2. **Content authoring UI**: the admin overview reads metrics and validates
+   repair, latency and the fallback chain must be checked with real free keys
+   (`docs/AI_PROVIDERS.md` lists them). Reasoning models such as gpt-oss spend
+   output tokens on reasoning, so the 700-token cap on cheap tasks may need
+   raising.
+2. **Hosting the API**: the database is on Neon, but the API still runs only
+   on the development machine. Using the app away from home needs the API on
+   a public HTTPS host and the client (web and APK) built with
+   `VITE_API_BASE_URL` pointing at it. See `docs/DEPLOYMENT.md`.
+3. **Content authoring UI**: the admin overview reads metrics and validates
    content, but exercises, investigations, simulations, negotiations,
    missions and challenges are still authored as typed data in
    `packages/curriculum`, with no in-app editor or review queue.
-3. **Remaining hardening**: hosted error monitoring, a formal accessibility
+4. **Remaining hardening**: hosted error monitoring, a formal accessibility
    audit, an `ai_usage` retention job, CI workflow.
-4. **Mobile**: the Android project is generated (`apps/client/android`, not
+5. **Mobile**: the Android project is generated (`apps/client/android`, not
    committed). See `docs/MOBILE.md` for the APK status. Local notifications
    for briefing reminders are installed but not wired.
-5. **OCR / photo capture** for reading; only PDFs with a text layer import.
-6. **Email verification / password reset** (needs an email provider).
+6. **OCR / photo capture** for reading; only PDFs with a text layer import.
+7. **Email verification / password reset** (needs an email provider).
 
 ## Known limitations
 
@@ -66,7 +74,7 @@ send private content (council, reading, projects, missions, negotiations). See
 pnpm install
 pnpm typecheck          # 6 workspaces clean
 pnpm lint               # clean
-pnpm test               # 17 files, 146 tests
+pnpm test               # 17 files, 150 tests
 pnpm test:e2e           # 13 Playwright tests
 pnpm --filter @lunara/client build
 pnpm dev                # api :8787 + web :5173

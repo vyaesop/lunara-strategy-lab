@@ -6,8 +6,19 @@ plugins (ADR-0005). The native projects are generated, not committed.
 ## Prerequisites (Windows)
 
 - Node 22, pnpm 11.
-- Android Studio with SDK Platform 36, Build-Tools 36 and the bundled JDK 17
-  (Android Gradle Plugin requires it; plain Java 11/19 will not work).
+- Android Studio with SDK Platform 36 and Build-Tools 36.
+- **JDK 21.** Capacitor 8's Android library compiles with source release 21,
+  so Android Studio's bundled JDK 17 fails with `invalid source release: 21`.
+  A portable Temurin 21 zip is enough; no system install is needed:
+
+  ```
+  # Git Bash
+  export JAVA_HOME="$LOCALAPPDATA/jdk-21"          # unzipped Temurin 21
+  export ANDROID_HOME="$LOCALAPPDATA/Android/Sdk"
+  ```
+
+- The first Gradle build downloads about 2.5 GB of dependencies into
+  `~/.gradle`; later builds run from that cache.
 - For iOS: macOS with Xcode.
 
 ## Point the app at your API

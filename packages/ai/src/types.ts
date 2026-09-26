@@ -64,7 +64,14 @@ export interface TaskRoute {
   maxOutputTokens?: number;
   timeoutMs?: number;
   /** Explicit fallback only; the router never escalates silently. */
-  fallback?: { provider: AIProviderId; model: string } | null;
+  fallback?: RouteTarget | null;
+  /** Further explicit fallbacks, tried in order after `fallback` (AI_FALLBACKS). */
+  fallbacks?: RouteTarget[];
+}
+
+export interface RouteTarget {
+  provider: AIProviderId;
+  model: string;
 }
 
 export type RoutingTable = Record<AITask, TaskRoute>;

@@ -18,7 +18,8 @@ export default defineConfig({
     {
       command: "pnpm --filter @lunara/api exec tsx src/index.ts",
       url: "http://localhost:8787/health",
-      reuseExistingServer: !process.env.CI,
+      // Never reuse a dev API: it may point at the real (Neon) database.
+      reuseExistingServer: false,
       env: { NODE_ENV: "test", PORT: "8787", PGLITE_DATA_DIR: "memory://", AI_PROVIDER_DEFAULT: "mock" },
       timeout: 60_000,
     },

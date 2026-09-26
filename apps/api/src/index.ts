@@ -1,3 +1,4 @@
+import "./load-dotenv";
 import { serve } from "@hono/node-server";
 import { buildApp } from "./app";
 import { openDb } from "./db/client";

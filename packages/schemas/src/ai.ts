@@ -14,7 +14,18 @@ export const AITask = z.enum([
 ]);
 export type AITask = z.infer<typeof AITask>;
 
-export const AIProviderId = z.enum(["mock", "gemini", "groq", "openrouter", "ollama", "openai_compatible"]);
+export const AIProviderId = z.enum([
+  "mock",
+  "gemini",
+  "groq",
+  "openrouter",
+  "mistral",
+  "cerebras",
+  "nvidia",
+  "cloudflare",
+  "ollama",
+  "openai_compatible",
+]);
 export type AIProviderId = z.infer<typeof AIProviderId>;
 
 export const AIUsageRecord = z.object({

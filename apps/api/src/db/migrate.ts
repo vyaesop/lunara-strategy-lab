@@ -1,3 +1,4 @@
+import "../load-dotenv";
 import { loadEnv } from "../env";
 import { openDb } from "./client";
 
