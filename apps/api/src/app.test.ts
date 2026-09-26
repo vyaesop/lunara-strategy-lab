@@ -793,3 +793,12 @@ describe("coaching session lifecycle", () => {
     expect(after.status).toBe(401);
   });
 });
+
+describe("loadEnv", () => {
+  it("treats empty variables as unset so defaults apply", () => {
+    const env = loadEnv({ RATE_LIMIT_PER_MINUTE: "", AI_ALLOW_USER_CONTENT: "", PORT: "9000" });
+    expect(env.RATE_LIMIT_PER_MINUTE).toBe(60);
+    expect(env.PORT).toBe(9000);
+    expect("AI_ALLOW_USER_CONTENT" in env.raw).toBe(false);
+  });
+});

@@ -30,7 +30,9 @@ export type AppEnv = z.infer<typeof EnvSchema> & {
 const DEV_SECRET = "lunara-dev-only-secret-do-not-use-in-production-0123456789";
 
 export function loadEnv(source: Record<string, string | undefined> = process.env): AppEnv {
-  const parsed = EnvSchema.safeParse(source);
+  // Treat empty variables (common in hosting dashboards) as unset so defaults apply.
+  const cleaned = Object.fromEntries(Object.entries(source).filter(([, v]) => v !== undefined && v !== ""));
+  const parsed = EnvSchema.safeParse(cleaned);
   if (!parsed.success) {
     const msg = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
     throw new Error(`Invalid environment: ${msg}`);
@@ -40,5 +42,5 @@ export function loadEnv(source: Record<string, string | undefined> = process.env
     if (!env.BETTER_AUTH_SECRET) throw new Error("BETTER_AUTH_SECRET is required in production");
     if (!env.DATABASE_URL) throw new Error("DATABASE_URL is required in production");
   }
-  return { ...env, raw: source, authSecret: env.BETTER_AUTH_SECRET ?? DEV_SECRET };
+  return { ...env, raw: cleaned, authSecret: env.BETTER_AUTH_SECRET ?? DEV_SECRET };
 }
