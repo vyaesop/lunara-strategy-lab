@@ -7,7 +7,9 @@ _Last updated: 2026-09-26._ Resume here: read this file, then
 
 **Phases 0–7 implemented and verified against the mock AI provider, plus a
 Lenis + GSAP design pass (ADR-0006). Code lives in the private repo
-`vyaesop/lunara-strategy-lab`.**
+`vyaesop/lunara-strategy-lab`. Live on Vercel since 2026-09-26:
+web https://lunara-strategy-lab.vercel.app, API https://strat-api.vercel.app
+(Neon database, mock AI until provider keys are added).**
 
 ## What exists and is verified
 
@@ -22,9 +24,10 @@ Lenis + GSAP design pass (ADR-0006). Code lives in the private repo
 
 | 7 Hardening | Data export, admin overview (usage, routing, content validation) behind a server-side flag, body limits, request ids and structured error logs, client error boundary, route-level code splitting, PWA service worker, deployment, security, backup and release docs, Capacitor Android project | API tests, full E2E |
 | Providers + Neon | The owner's Neon database is connected through a gitignored `apps/api/.env` (loaded automatically, ignored by tests); migrations applied and a sign-up/session smoke test passed on 2026-09-26. Presets for Groq, OpenRouter, Gemini, Mistral, Cerebras, NVIDIA, Cloudflare, Ollama and any OpenAI-compatible endpoint; an ordered `AI_FALLBACKS` chain for plain and structured calls; private content only reaches approved providers | AI unit tests, API tests, full E2E |
+| Hosting | Vercel projects `strat-api` (bundled Node function, migrations on production builds) and `lunara-strategy-lab` (static Vite build with SPA rewrite), both deploying from `main`; see `docs/DEPLOYMENT.md` | Live smoke test: sign-up, session, coach reply, reload, CORS, deep links, in a phone-sized browser with no console errors |
 | Design | Lenis smooth scroll on GSAP's ticker; SplitText headings; DrawSVG compass; pinned landing narrative; route transitions; gliding sidebar indicator; count-ups; reduced-motion safe | screenshots in both themes and on a phone viewport, full E2E with animations on |
 
-Totals at this update: 17 test files, 150 unit/API tests; 13 Playwright tests
+Totals at this update: 17 test files, 151 unit/API tests; 13 Playwright tests
 booting the API (PGlite memory, mock AI) and Vite themselves.
 
 ## Not yet done
@@ -35,19 +38,17 @@ booting the API (PGlite memory, mock AI) and Vite themselves.
    (`docs/AI_PROVIDERS.md` lists them). Reasoning models such as gpt-oss spend
    output tokens on reasoning, so the 700-token cap on cheap tasks may need
    raising.
-2. **Hosting the API**: the database is on Neon, but the API still runs only
-   on the development machine. Using the app away from home needs the API on
-   a public HTTPS host and the client (web and APK) built with
-   `VITE_API_BASE_URL` pointing at it. See `docs/DEPLOYMENT.md`.
+2. **AI keys in production**: the live API runs on the mock provider until
+   keys are added to the `strat-api` Vercel project and it is redeployed.
 3. **Content authoring UI**: the admin overview reads metrics and validates
    content, but exercises, investigations, simulations, negotiations,
    missions and challenges are still authored as typed data in
    `packages/curriculum`, with no in-app editor or review queue.
 4. **Remaining hardening**: hosted error monitoring, a formal accessibility
    audit, an `ai_usage` retention job, CI workflow.
-5. **Mobile**: the Android project is generated (`apps/client/android`, not
-   committed). See `docs/MOBILE.md` for the APK status. Local notifications
-   for briefing reminders are installed but not wired.
+5. **Mobile**: a debug APK pointed at the hosted API works on an emulator
+   (see `docs/MOBILE.md`). Still missing: a signed release build, icons and
+   splash assets, and local notifications for briefing reminders.
 6. **OCR / photo capture** for reading; only PDFs with a text layer import.
 7. **Email verification / password reset** (needs an email provider).
 
@@ -74,7 +75,7 @@ send private content (council, reading, projects, missions, negotiations). See
 pnpm install
 pnpm typecheck          # 6 workspaces clean
 pnpm lint               # clean
-pnpm test               # 17 files, 150 tests
+pnpm test               # 17 files, 151 tests
 pnpm test:e2e           # 13 Playwright tests
 pnpm --filter @lunara/client build
 pnpm dev                # api :8787 + web :5173

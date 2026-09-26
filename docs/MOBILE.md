@@ -51,11 +51,18 @@ pnpm --filter @lunara/client cap:add:android   # generates apps/client/android
 ## Build a debug APK
 
 ```
+# Git Bash, from the repo root; point the app at the hosted API
+export VITE_API_BASE_URL=https://strat-api.vercel.app
 pnpm --filter @lunara/client cap:sync          # vite build + cap sync
 cd apps/client/android
-gradlew.bat assembleDebug
-# → apps/client/android/app/build/outputs/apk/debug/app-debug.apk
+./gradlew.bat :app:assembleDebug
+# -> apps/client/android/app/build/outputs/apk/debug/app-debug.apk
 ```
+
+Build `:app:assembleDebug`, not plain `assembleDebug`. The plain task also
+packages every Capacitor plugin as a library, which downloads the Android
+lint toolchain (hundreds of MB, and it times out on slow connections) for
+no benefit to the app.
 
 Or `pnpm --filter @lunara/client cap:open:android` and press Run in Android
 Studio with a device connected.
@@ -75,6 +82,12 @@ CORS for this purpose.
 
 ## Status
 
-- Capacitor config and native plugins are wired; `cap add android` has not
-  been run in this repository yet (Android SDK present on the dev machine,
-  build not exercised). See `docs/PROJECT_STATUS.md`.
+- 2026-09-26: debug APK built with JDK 21 against the hosted API and tested
+  on the Pixel 6 API 34 emulator (WebView 113): sign-up, onboarding, token
+  stored in Capacitor Preferences, session with coach reply, and sign-in
+  surviving an app restart. No JavaScript errors apart from Capacitor's
+  harmless "Error injecting safe area CSS" message at startup.
+- The generated `apps/client/android` project is not committed; the local
+  copy uses Gradle 8.14 and has `local.properties` pointing at the SDK.
+- Not yet done: a signed release build, app icons and splash assets, and
+  wiring local notifications for briefing reminders.

@@ -287,8 +287,3 @@ a.panel:hover,
   }
 }
 
-@media (max-width: 767px) {
-  .safe-bottom {
-    padding-bottom: calc(env(safe-area-inset-bottom) + 64px);
-  }
-}

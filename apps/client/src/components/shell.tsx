@@ -87,7 +87,7 @@ export function AppShell() {
         <Sidebar groups={groups} pathname={location.pathname} email={me.data?.profile.email ?? ""} onSignOut={onSignOut} />
 
         <div className="relative z-10 flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-bg/75 px-4 py-3 backdrop-blur-xl md:hidden">
+          <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-bg/90 px-4 py-3 backdrop-blur-xl md:hidden">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-accent" />
               <span className="font-serif text-lg">Lunara</span>
@@ -97,7 +97,7 @@ export function AppShell() {
             </button>
           </header>
           <MobileSheet open={moreOpen} onClose={() => setMoreOpen(false)} groups={groups} pathname={location.pathname} onSignOut={onSignOut} />
-          <main className="safe-bottom mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-10 md:py-10">
+          <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-[calc(env(safe-area-inset-bottom)+6.5rem)] pt-6 md:px-10 md:py-10">
             {me.isPending ? (
               <div className="flex justify-center py-20">
                 <Spinner />
@@ -110,7 +110,7 @@ export function AppShell() {
           </main>
         </div>
 
-        <nav className="fixed inset-x-3 bottom-3 z-20 grid grid-cols-4 rounded-2xl border border-border bg-bg-elevated/80 p-1 pb-[max(0.25rem,env(safe-area-inset-bottom))] shadow-panel backdrop-blur-xl md:hidden">
+        <nav className="fixed inset-x-3 bottom-3 z-20 grid grid-cols-4 rounded-2xl border border-border bg-bg-elevated/90 p-1 pb-[max(0.25rem,env(safe-area-inset-bottom))] shadow-panel backdrop-blur-xl md:hidden">
           {MOBILE_NAV.map((item) => (
             <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive: a }) => cx("flex flex-col items-center gap-1 rounded-xl py-2 text-[11px] transition-colors duration-300", a ? "bg-accent-soft text-accent" : "text-text-faint")}>
               <item.icon className="h-5 w-5" />
