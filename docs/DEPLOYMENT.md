@@ -73,3 +73,35 @@ validation.
 - Sign up, start "The Locked Archive", send a message, request a hint.
 - `/app/admin` shows the sign-up in user counts and the calls in usage.
 - Export from Settings downloads JSON.
+
+## Current production setup (Vercel, 2026-09-26)
+
+Both apps deploy from `main` of the GitHub repo as two Vercel projects in the
+`vyaesops-projects` team. Every push to `main` redeploys both.
+
+| Project | Root directory | Build | URL |
+|---|---|---|---|
+| `strat-api` | `apps/api` | `pnpm run build:vercel` (framework: Other) | https://strat-api.vercel.app |
+| `lunara-strategy-lab` | `apps/client` | Vite preset (`pnpm build`, output `dist`) | https://lunara-strategy-lab.vercel.app |
+
+- **API build** (`apps/api/scripts/build-vercel.mjs`): on production builds it
+  applies migrations to `DATABASE_URL`, then bundles `src/vercel.ts` with
+  esbuild into a single Node function using Vercel's Build Output API. Every
+  path routes to that function. The function opens the Postgres pool once per
+  warm instance and never migrates at request time.
+- **API environment** (production and preview): `DATABASE_URL` and
+  `BETTER_AUTH_SECRET` (sensitive), `BETTER_AUTH_URL`, `CLIENT_ORIGINS`, and
+  the AI and limit variables from `apps/api/.env.example`. Do not set
+  `NODE_ENV` as a project variable; Vercel sets it at runtime, and setting it
+  at build time can make the install skip dev dependencies the build needs.
+- **Client environment**: `VITE_API_BASE_URL=https://strat-api.vercel.app`.
+  It is baked in at build time, so changing it needs a redeploy.
+  `apps/client/vercel.json` rewrites unknown paths to `index.html` so deep
+  links survive a refresh.
+- **Auth across domains**: the client and API are on different domains, so
+  the web app uses the bearer token from `set-auth-token` (stored locally),
+  exactly as the Android app does. `CLIENT_ORIGINS` must list every client
+  origin; preview deployments of the client get their own URLs and are not
+  listed, so only the production client can sign in.
+- **AI keys**: add them to `strat-api` (Settings, Environment Variables), then
+  redeploy. See `docs/AI_PROVIDERS.md`.

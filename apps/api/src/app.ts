@@ -41,7 +41,7 @@ export interface BuildAppOptions {
 
 export function buildServices(options: BuildAppOptions): Services {
   const curriculum = validateCurriculum();
-  if (!curriculum.ok) throw new Error(`Curriculum invalid:\n${curriculum.errors.join("\n")}`);
+  if ("errors" in curriculum) throw new Error(`Curriculum invalid:\n${curriculum.errors.join("\n")}`);
   const ai = options.ai ?? buildAIFromEnv(options.env.raw, { usageSink: createUsageSink(options.db) });
   const turn = ai.routes["coach.turn"];
   return {
