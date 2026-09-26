@@ -321,7 +321,7 @@ describe("fallback chain", () => {
     expect([...ai.providers.keys()]).toEqual(expect.arrayContaining(["groq", "openrouter", "mistral", "cloudflare"]));
     expect(ai.providers.has("cerebras")).toBe(false);
     expect(ai.routes["coach.turn"].fallbacks).toEqual([
-      { provider: "openrouter", model: "qwen/qwen3.8-27b:free" },
+      { provider: "openrouter", model: "nvidia/nemotron-3-super-120b-a12b:free" },
       { provider: "mistral", model: "mistral-large-latest" },
     ]);
     expect(ai.routes["coach.assess"].fallbacks?.[0]).toEqual({ provider: "openrouter", model: "nvidia/nemotron-3-super-120b-a12b:free" });

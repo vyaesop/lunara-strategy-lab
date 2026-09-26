@@ -11,7 +11,7 @@ aiRoutes.get("/health", async (c) => {
   const started = Date.now();
   let ok = true;
   try {
-    await ai.generate("health", [{ role: "user", content: "Reply with the single word: ready" }], { maxOutputTokens: 5 });
+    await ai.generate("health", [{ role: "user", content: "Reply with the single word: ready" }], { maxOutputTokens: 300 });
   } catch (err) {
     ok = false;
     if (!isAIError(err)) throw err;

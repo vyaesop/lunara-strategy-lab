@@ -9,7 +9,7 @@ _Last updated: 2026-09-26._ Resume here: read this file, then
 Lenis + GSAP design pass (ADR-0006). Code lives in the private repo
 `vyaesop/lunara-strategy-lab`. Live on Vercel since 2026-09-26:
 web https://lunara-strategy-lab.vercel.app, API https://strat-api.vercel.app
-(Neon database, mock AI until provider keys are added).**
+(Neon database, OpenRouter free models since 2026-09-26).**
 
 ## What exists and is verified
 
@@ -32,14 +32,17 @@ booting the API (PGlite memory, mock AI) and Vite themselves.
 
 ## Not yet done
 
-1. **Real-provider run**: everything above runs against the deterministic
-   mock (which echoes each prompt's example JSON). Prompt quality, structured
-   repair, latency and the fallback chain must be checked with real free keys
-   (`docs/AI_PROVIDERS.md` lists them). Reasoning models such as gpt-oss spend
-   output tokens on reasoning, so the 700-token cap on cheap tasks may need
-   raising.
-2. **AI keys in production**: the live API runs on the mock provider until
-   keys are added to the `strat-api` Vercel project and it is redeployed.
+1. **Real-provider run (partial)**: on 2026-09-26 a full coached session ran
+   against OpenRouter's free `nvidia/nemotron-3-super-120b-a12b:free`: a
+   Socratic coach turn (about 4 s) and a validated rubric assessment with
+   evidence-quoting feedback (about 30 s). Output caps were raised because
+   reasoning tokens count against them (a 2,000-token cap truncated the first
+   assessment). Not yet exercised on a real model: investigations, tree
+   critique, simulations, the War Room council, reading, strategy, missions,
+   negotiation and the monthly challenge.
+2. **Free-tier capacity**: the OpenRouter key has no credits, so it allows 50
+   free-model requests a day across all users. A one-time $10 purchase raises
+   that to 1,000; adding a Groq key to `AI_FALLBACKS` adds more.
 3. **Content authoring UI**: the admin overview reads metrics and validates
    content, but exercises, investigations, simulations, negotiations,
    missions and challenges are still authored as typed data in

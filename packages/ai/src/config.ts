@@ -31,7 +31,7 @@ const DEFAULT_MODELS: Record<AIProviderId, { cheap: string; strong: string; embe
   mock: { cheap: "mock-small", strong: "mock-large", embed: "mock-embed" },
   gemini: { cheap: "gemini-3.5-flash-lite", strong: "gemini-3.5-flash", embed: "gemini-embedding-001" },
   groq: { cheap: "openai/gpt-oss-20b", strong: "openai/gpt-oss-120b", embed: null },
-  openrouter: { cheap: "qwen/qwen3.8-27b:free", strong: "nvidia/nemotron-3-super-120b-a12b:free", embed: null },
+  openrouter: { cheap: "nvidia/nemotron-3-super-120b-a12b:free", strong: "nvidia/nemotron-3-super-120b-a12b:free", embed: null },
   mistral: { cheap: "mistral-small-latest", strong: "mistral-medium-latest", embed: "mistral-embed" },
   cerebras: { cheap: "gpt-oss-120b", strong: "gpt-oss-120b", embed: null },
   nvidia: { cheap: "nvidia/nemotron-3-super-120b-a12b", strong: "nvidia/nemotron-3-ultra-550b-a55b", embed: null },
@@ -197,9 +197,10 @@ export function buildRoutesFromEnv(env: Env, available: Set<AIProviderId>): { ro
         ? { provider: defaultProvider, model: embedModel, timeoutMs: 20_000, fallback: null }
         : { provider: "mock", model: DEFAULT_MODELS.mock.embed!, timeoutMs: 20_000, fallback: null };
     } else if (CHEAP_TASKS.includes(task)) {
-      route = { provider: defaultProvider, model: cheap, temperature: 0.5, maxOutputTokens: 700, timeoutMs: 30_000, fallback: null };
+      // Reasoning models spend output tokens on hidden reasoning, so caps are generous.
+      route = { provider: defaultProvider, model: cheap, temperature: 0.5, maxOutputTokens: 1_500, timeoutMs: 45_000, fallback: null };
     } else {
-      route = { provider: defaultProvider, model: strong, temperature: 0.2, maxOutputTokens: 2_000, timeoutMs: 60_000, fallback: null };
+      route = { provider: defaultProvider, model: strong, temperature: 0.2, maxOutputTokens: 4_000, timeoutMs: 90_000, fallback: null };
     }
     const override = parseRouteOverride(env[`AI_ROUTE_${task.toUpperCase().replace(/\./g, "_")}`]);
     if (override && available.has(override.provider)) route = { ...route, ...override };

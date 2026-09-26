@@ -49,7 +49,8 @@ writeFileSync(
       launcherType: "Nodejs",
       shouldAddHelpers: false,
       supportsResponseStreaming: true,
-      maxDuration: 60,
+      // Free reasoning models can take over a minute for a graded assessment.
+      maxDuration: 300,
     },
     null,
     2,

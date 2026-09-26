@@ -12,7 +12,7 @@ environment without keys is `mock`.
 | Provider | Id | Free allowance | Card? | Trains on free prompts? | Default models (cheap / strong) |
 |---|---|---|---|---|---|
 | Groq | `groq` | 30 RPM, 1,000 RPD, 8K TPM, 200K TPD per model, per organisation | No [u] | No; not retained by default | `openai/gpt-oss-20b` / `openai/gpt-oss-120b` |
-| OpenRouter | `openrouter` | `:free` models at 20 RPM; 50 RPD, or 1,000 RPD after $10 of lifetime credit | No | Providers that train are excluded unless you enable it | `qwen/qwen3.8-27b:free` / `nvidia/nemotron-3-super-120b-a12b:free` |
+| OpenRouter | `openrouter` | `:free` models at 20 RPM; 50 RPD, or 1,000 RPD after $10 of lifetime credit | No | Providers that train are excluded unless you enable it | `nvidia/nemotron-3-super-120b-a12b:free` for both |
 | Google Gemini | `gemini` | Limits shown only in AI Studio; third parties report about 20 RPD on Flash and 500 RPD on Flash-Lite [u] | No | **Yes**: free-tier content is used to improve Google products | `gemini-3.5-flash-lite` / `gemini-3.5-flash` |
 | Mistral (Free/Experiment) | `mistral` | Not published; reported about 1 request/s and 1B tokens/month [u]; phone check [u] | No | **Yes by default**; opt out in the console | `mistral-small-latest` / `mistral-medium-latest` |
 | Cloudflare Workers AI | `cloudflare` | 10,000 neurons/day | No | [u] | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` (JSON mode only on some models) |
