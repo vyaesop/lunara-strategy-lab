@@ -148,7 +148,7 @@ export function KnowledgePage() {
           ) : concepts.length === 0 ? (
             <EmptyState title="No concepts yet" body="Add one here, or generate questions from a document and save the suggested concepts." />
           ) : (
-            <div className="h-[560px] overflow-hidden rounded-xl border border-border bg-bg-elevated">
+            <div data-lenis-prevent className="h-[560px] overflow-hidden rounded-xl border border-border bg-bg-elevated">
               <ReactFlow nodes={flow.nodes} edges={flow.edges} onNodeClick={(_, n) => setSelected(n.id)} fitView proOptions={{ hideAttribution: true }} nodesDraggable nodesConnectable={false}>
                 <Background gap={24} color="var(--border)" />
                 <Controls showInteractive={false} />

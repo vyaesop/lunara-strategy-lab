@@ -19,7 +19,7 @@ test.describe("training loop", () => {
     page.on("pageerror", (e) => errors.push(e.message));
 
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: /Train to think/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Think like a strategist/ })).toBeVisible();
 
     await signUp(page, "Loop");
     await page.getByRole("button", { name: "Reason more rigorously" }).click();

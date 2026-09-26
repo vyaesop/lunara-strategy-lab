@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
+import { RevealText } from "./motion";
 
 export function cx(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(" ");
@@ -8,8 +9,8 @@ type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md" | "lg";
 
 const variantClass: Record<Variant, string> = {
-  primary: "bg-accent text-bg hover:bg-accent-strong disabled:hover:bg-accent",
-  secondary: "bg-surface border border-border-strong text-text hover:bg-surface-muted",
+  primary: "shine bg-accent text-bg shadow-[0_8px_24px_-12px_var(--accent)] hover:bg-accent-strong hover:shadow-[0_14px_32px_-14px_var(--accent)] disabled:hover:bg-accent disabled:shadow-none",
+  secondary: "bg-surface border border-border-strong text-text hover:bg-surface-muted hover:border-accent/40",
   ghost: "bg-transparent text-text-muted hover:bg-surface-muted hover:text-text",
   danger: "bg-danger-soft text-danger border border-danger/30 hover:brightness-95",
 };
@@ -32,7 +33,7 @@ export function Button({
       {...rest}
       disabled={rest.disabled || loading}
       className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed select-none",
+        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-[background-color,border-color,color,box-shadow,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 select-none",
         variantClass[variant],
         sizeClass[size],
         className,
@@ -135,11 +136,18 @@ export function ErrorNote({ error }: { error: unknown }) {
 
 export function PageTitle({ eyebrow, title, subtitle, action }: { eyebrow?: string; title: string; subtitle?: string; action?: ReactNode }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
-        {eyebrow ? <div className="mb-1 text-xs font-medium uppercase tracking-[0.18em] text-text-faint">{eyebrow}</div> : null}
-        <h1 className="text-3xl md:text-4xl">{title}</h1>
-        {subtitle ? <p className="mt-1 max-w-2xl text-text-muted">{subtitle}</p> : null}
+        {eyebrow ? (
+          <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-accent">
+            <span className="h-px w-6 bg-accent/60" />
+            {eyebrow}
+          </div>
+        ) : null}
+        <RevealText key={title} className="text-3xl md:text-[2.6rem]">
+          {title}
+        </RevealText>
+        {subtitle ? <p className="mt-2 max-w-2xl text-text-muted">{subtitle}</p> : null}
       </div>
       {action}
     </div>

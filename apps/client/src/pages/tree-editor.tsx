@@ -220,7 +220,7 @@ function Editor({ tree }: { tree: ScenarioTree }) {
       <ErrorNote error={actions.save.error} />
 
       <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="relative min-h-[360px] overflow-hidden rounded-xl border border-border bg-bg-elevated">
+        <div data-lenis-prevent className="relative min-h-[360px] overflow-hidden rounded-xl border border-border bg-bg-elevated">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -248,7 +248,7 @@ function Editor({ tree }: { tree: ScenarioTree }) {
           </div>
         </div>
 
-        <aside className="flex min-h-0 flex-col gap-2 overflow-y-auto">
+        <aside data-lenis-prevent className="flex min-h-0 flex-col gap-2 overflow-y-auto">
           <div className="flex gap-1">
             {(["node", "critique", "versions"] as const).map((p) => (
               <button key={p} onClick={() => setPanel(p)} className={cx("rounded-lg px-3 py-1.5 text-sm capitalize", panel === p ? "bg-accent-soft text-accent font-medium" : "text-text-muted")}>

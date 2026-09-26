@@ -2,6 +2,7 @@ import { ArrowRight, Flame, Target } from "lucide-react";
 import { Link } from "react-router";
 import { SKILL_DEFINITIONS } from "@lunara/core";
 import { ScoreBar } from "@/components/assessment";
+import { CountUp } from "@/components/motion";
 import { Badge, Button, Card, EmptyState, MODE_LABELS, PHASE_LABELS, PageTitle, Spinner } from "@/components/ui";
 import { useExercises, useMe, useRecommendations, useSessions } from "@/lib/queries";
 
@@ -93,8 +94,8 @@ export function CommandCenterPage() {
 
         <Card title="Streak and sessions">
           <div className="grid grid-cols-2 gap-4">
-            <Stat icon={<Flame className="h-4 w-4 text-accent" />} label="Current streak" value={`${profile?.stats.streak.current ?? 0} d`} />
-            <Stat icon={<Target className="h-4 w-4 text-accent" />} label="Completed" value={String(profile?.stats.sessionsCompleted ?? completed.length)} />
+            <Stat icon={<Flame className="h-4 w-4 text-accent" />} label="Current streak" value={profile?.stats.streak.current ?? 0} suffix=" d" />
+            <Stat icon={<Target className="h-4 w-4 text-accent" />} label="Completed" value={profile?.stats.sessionsCompleted ?? completed.length} />
           </div>
           <p className="mt-3 text-xs text-text-faint">Streaks count days with a completed session. Nothing here is estimated.</p>
           <Link to="/app/briefing" className="mt-3 flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm hover:bg-surface-muted">
@@ -160,14 +161,14 @@ export function CommandCenterPage() {
   );
 }
 
-function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function Stat({ icon, label, value, suffix = "" }: { icon: React.ReactNode; label: string; value: number; suffix?: string }) {
   return (
     <div className="rounded-lg bg-surface-muted p-3">
       <div className="flex items-center gap-2 text-xs text-text-muted">
         {icon}
         {label}
       </div>
-      <div className="mt-1 font-serif text-2xl">{value}</div>
+      <div className="mt-1 font-serif text-3xl"><CountUp value={value} />{suffix}</div>
     </div>
   );
 }

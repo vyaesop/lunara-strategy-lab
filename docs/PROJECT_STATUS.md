@@ -5,8 +5,9 @@ _Last updated: 2026-09-26._ Resume here: read this file, then
 
 ## Current phase
 
-**Phases 0–6 implemented and verified against the mock AI provider. Phase 7
-(production hardening) is next.**
+**Phases 0–7 implemented and verified against the mock AI provider, plus a
+Lenis + GSAP design pass (ADR-0006). Code lives in the private repo
+`vyaesop/lunara-strategy-lab`.**
 
 ## What exists and is verified
 
@@ -19,22 +20,26 @@ _Last updated: 2026-09-26._ Resume here: read this file, then
 | 5 Reading + memory | Library (text/markdown/link/PDF via unpdf), paged reader, excerpts with locators, browser dictation, bounded-passage ask + question generation, per-document AI toggle; knowledge graph with dedup, merge, relations; FSRS spaced repetition with retention evidence | scheduler + concept tests, API tests, `phase5.spec.ts` |
 | 6 Real-world | Strategy Lab projects (10 sections, AI suggestions accepted per item); decision journal with predictions, resolution and Brier calibration (shown after 10); precomputed daily briefing (10 puzzles, 14 questions, review, prediction prompt); negotiation role-play with deterministic acceptance and AI-voiced counterpart (2 scenarios); missions (2 curated + custom from projects) with debrief; Meridian trading game (seeded, deterministic, quarterly reports, personal rank); monthly master challenge (8 stages incl. adversarial review, compared with own attempts) | engine tests, API tests, `phase6*.spec.ts` |
 
-Totals at this update: 17 test files, 143 unit/API tests; 13 Playwright tests
+| 7 Hardening | Data export, admin overview (usage, routing, content validation) behind a server-side flag, body limits, request ids and structured error logs, client error boundary, route-level code splitting, PWA service worker, deployment, security, backup and release docs, Capacitor Android project | API tests, full E2E |
+| Design | Lenis smooth scroll on GSAP's ticker; SplitText headings; DrawSVG compass; pinned landing narrative; route transitions; gliding sidebar indicator; count-ups; reduced-motion safe | screenshots in both themes and on a phone viewport, full E2E with animations on |
+
+Totals at this update: 17 test files, 146 unit/API tests; 13 Playwright tests
 booting the API (PGlite memory, mock AI) and Vite themselves.
 
-## Not yet done (Phase 7 and gaps)
+## Not yet done
 
 1. **Real-provider run**: everything above runs against the deterministic
    mock (which echoes each prompt's example JSON). Prompt quality, structured
    repair and latency must be checked with a Gemini or Groq key.
-2. **Admin interface**: exercises, investigations, simulations, negotiations,
-   missions and challenges are typed data in `packages/curriculum`; there is
-   no DB-backed authoring UI, versioning workflow or content review queue.
-3. **Hardening**: security review pass, error monitoring, accessibility
-   audit, route-level code splitting (client bundle ~936 kB), data export,
-   retention jobs, backup/restore docs, deployment runbook.
-4. **Mobile**: Capacitor is configured but `cap add android` and an APK build
-   have not been run; local notifications for briefing reminders not wired.
+2. **Content authoring UI**: the admin overview reads metrics and validates
+   content, but exercises, investigations, simulations, negotiations,
+   missions and challenges are still authored as typed data in
+   `packages/curriculum`, with no in-app editor or review queue.
+3. **Remaining hardening**: hosted error monitoring, a formal accessibility
+   audit, an `ai_usage` retention job, CI workflow.
+4. **Mobile**: the Android project is generated (`apps/client/android`, not
+   committed). See `docs/MOBILE.md` for the APK status. Local notifications
+   for briefing reminders are installed but not wired.
 5. **OCR / photo capture** for reading; only PDFs with a text layer import.
 6. **Email verification / password reset** (needs an email provider).
 
@@ -61,7 +66,7 @@ send private content (council, reading, projects, missions, negotiations). See
 pnpm install
 pnpm typecheck          # 6 workspaces clean
 pnpm lint               # clean
-pnpm test               # 17 files, 143 tests
+pnpm test               # 17 files, 146 tests
 pnpm test:e2e           # 13 Playwright tests
 pnpm --filter @lunara/client build
 pnpm dev                # api :8787 + web :5173

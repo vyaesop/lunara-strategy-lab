@@ -89,7 +89,7 @@ export function ReviewPage() {
           </Card>
           <Card title="Deck">
             {items.data && items.data.items.length ? (
-              <ul className="max-h-[50vh] space-y-1 overflow-y-auto text-sm">
+              <ul data-lenis-prevent className="max-h-[50vh] space-y-1 overflow-y-auto text-sm">
                 {items.data.items.map((it) => (
                   <li key={it.id} className="flex items-center justify-between gap-2 rounded-lg px-2 py-1 hover:bg-surface-muted">
                     <span className="min-w-0 flex-1 truncate">{it.prompt}</span>

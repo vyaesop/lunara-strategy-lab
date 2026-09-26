@@ -209,7 +209,7 @@ function Transcript({ data }: { data: SessionDetail }) {
     ref.current?.scrollTo({ top: ref.current.scrollHeight });
   }, [data.messages.length]);
   return (
-    <div ref={ref} className="max-h-[60vh] space-y-3 overflow-y-auto p-4">
+    <div ref={ref} data-lenis-prevent className="max-h-[60vh] space-y-3 overflow-y-auto p-4">
       {data.messages.map((m) => (
         <div key={m.id} className={cx("flex", m.role === "user" ? "justify-end" : "justify-start")}>
           <div

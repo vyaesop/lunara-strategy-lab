@@ -90,7 +90,7 @@ export function NegotiationPage() {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-4">
           <Card className="p-0">
-            <div ref={logRef} className="max-h-[50vh] space-y-2 overflow-y-auto p-4">
+            <div ref={logRef} data-lenis-prevent className="max-h-[50vh] space-y-2 overflow-y-auto p-4">
               {session.messages.map((m) => (
                 <div key={m.id} className={cx("flex", m.role === "user" ? "justify-end" : "justify-start")}>
                   <div className={cx("max-w-[85%] whitespace-pre-wrap rounded-xl px-3 py-2 text-sm", m.role === "user" ? "bg-accent-soft" : m.role === "counterpart" ? "bg-surface-muted" : "border border-dashed border-border text-text-faint")}>

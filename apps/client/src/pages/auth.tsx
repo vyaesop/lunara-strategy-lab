@@ -2,19 +2,30 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth";
+import { Compass } from "@/components/compass";
+import { Reveal, RevealText } from "@/components/motion";
 import { Button, ErrorNote, Input, Label } from "@/components/ui";
 
 function AuthFrame({ title, subtitle, children, footer }: { title: string; subtitle: string; children: React.ReactNode; footer: React.ReactNode }) {
   return (
-    <div className="bg-grid flex min-h-full items-center justify-center px-4 py-12">
-      <div className="panel w-full max-w-md p-8">
-        <Link to="/" className="text-[11px] uppercase tracking-[0.2em] text-text-faint">
-          Lunara Strategy Lab
-        </Link>
-        <h1 className="mt-3 text-3xl">{title}</h1>
-        <p className="mt-1 text-sm text-text-muted">{subtitle}</p>
-        <div className="mt-6">{children}</div>
-        <div className="mt-6 text-sm text-text-muted">{footer}</div>
+    <div className="relative grid min-h-full overflow-hidden lg:grid-cols-2">
+      <div className="ambient pointer-events-none absolute inset-0" aria-hidden="true" />
+      <div className="noise pointer-events-none absolute inset-0" aria-hidden="true" />
+      <div className="relative hidden flex-col justify-between border-r border-border p-10 lg:flex">
+        <Link to="/" className="font-serif text-xl">Lunara <span className="text-[10px] uppercase tracking-[0.24em] text-text-faint">Strategy Lab</span></Link>
+        <Compass className="mx-auto w-full max-w-md" />
+        <p className="max-w-sm text-sm text-text-muted">The answer is locked until you have earned it. Hints unlock in order; solutions unlock after you decide.</p>
+      </div>
+      <div className="relative flex items-center justify-center px-4 py-12">
+        <Reveal className="panel w-full max-w-md p-8" stagger={0.07}>
+          <Link to="/" className="block text-[11px] uppercase tracking-[0.2em] text-text-faint lg:hidden">
+            Lunara Strategy Lab
+          </Link>
+          <RevealText className="mt-3 text-3xl">{title}</RevealText>
+          <p className="mt-1 text-sm text-text-muted">{subtitle}</p>
+          <div className="mt-6">{children}</div>
+          <div className="mt-6 text-sm text-text-muted">{footer}</div>
+        </Reveal>
       </div>
     </div>
   );

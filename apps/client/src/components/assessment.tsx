@@ -1,5 +1,8 @@
 import type { ExercisePublic, SessionAssessment } from "@lunara/schemas";
 import { SKILL_DEFINITIONS } from "@lunara/core";
+import { useRef } from "react";
+import { gsap, useGSAP } from "@/lib/motion";
+import { CountUp } from "./motion";
 import { Badge, cx } from "./ui";
 
 const OUTCOME_LABEL: Record<SessionAssessment["outcomeQuality"], { label: string; tone: "success" | "warning" | "danger" | "neutral" | "info" }> = {
@@ -87,12 +90,20 @@ export function AssessmentView({ assessment, exercise }: { assessment: SessionAs
 }
 
 export function ScoreBar({ value, className }: { value: number; className?: string }) {
+  const bar = useRef<HTMLSpanElement>(null);
+  useGSAP(
+    () => {
+      // Fill from zero when the bar scrolls into view.
+      gsap.fromTo(bar.current, { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: bar.current, start: "top 95%", once: true } });
+    },
+    { dependencies: [value], scope: bar },
+  );
   return (
     <span className={cx("flex items-center gap-2", className)} aria-label={`${pct(value)} out of 100`}>
       <span className="h-1.5 w-24 overflow-hidden rounded-full bg-surface-muted">
-        <span className="block h-full rounded-full bg-accent" style={{ width: `${Math.round(value * 100)}%` }} />
+        <span ref={bar} className="block h-full origin-left rounded-full bg-gradient-to-r from-accent/70 to-accent" style={{ width: `${Math.round(value * 100)}%` }} />
       </span>
-      <span className="w-7 text-right text-xs tabular-nums text-text-muted">{pct(value)}</span>
+      <CountUp value={Math.round(value * 100)} className="w-7 text-right text-xs text-text-muted" />
     </span>
   );
 }

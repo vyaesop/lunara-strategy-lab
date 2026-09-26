@@ -217,7 +217,7 @@ export function ReaderPage() {
           </div>
         </div>
         <Card className="p-0">
-          <div ref={textRef} data-testid="reader-text" onMouseUp={captureSelection} onTouchEnd={captureSelection} className="max-h-[65vh] overflow-y-auto whitespace-pre-wrap p-5 font-serif text-[15px] leading-7">
+          <div ref={textRef} data-lenis-prevent data-testid="reader-text" onMouseUp={captureSelection} onTouchEnd={captureSelection} className="max-h-[65vh] overflow-y-auto whitespace-pre-wrap p-5 font-serif text-[15px] leading-7">
             {t.text}
           </div>
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border p-3 text-xs text-text-muted">

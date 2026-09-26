@@ -143,8 +143,14 @@ h2,
 h3 {
   font-family: var(--font-serif);
   font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
+  letter-spacing: -0.015em;
+  line-height: 1.12;
+  font-optical-sizing: auto;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 ::selection {
@@ -167,14 +173,118 @@ h3 {
 }
 
 .panel {
-  background: var(--surface);
+  position: relative;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 100%, white 2%) 0%, var(--surface) 60%);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 16px;
   box-shadow: var(--shadow);
+  transition: border-color 0.4s ease, box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Hairline highlight along the top edge of every panel. */
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 22%, transparent), transparent 40%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+a.panel:hover,
+.card-lift:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow), 0 24px 48px -28px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
 .prose-coach p + p {
   margin-top: 0.6em;
+}
+
+/* Film grain: gives flat dark surfaces some depth. */
+.noise {
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Ambient brass glow that slowly drifts behind the app. */
+.ambient {
+  background:
+    radial-gradient(40rem 30rem at 12% -10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%),
+    radial-gradient(36rem 28rem at 110% 20%, color-mix(in srgb, var(--info) 9%, transparent), transparent 70%);
+}
+
+.closing-glow {
+  background: conic-gradient(from 180deg at 50% 50%, transparent 0%, color-mix(in srgb, var(--accent) 20%, transparent) 15%, transparent 35%, transparent 60%, color-mix(in srgb, var(--info) 14%, transparent) 75%, transparent 90%);
+  filter: blur(48px);
+  animation: spin 18s linear infinite;
+}
+
+/* Sheen that sweeps across primary buttons on hover. */
+.shine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.shine::after {
+  content: "";
+  position: absolute;
+  inset: -50% auto -50% -60%;
+  width: 40%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg) translateX(0);
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1;
+  pointer-events: none;
+}
+.shine:hover::after {
+  transform: skewX(-20deg) translateX(420%);
+}
+
+.link-underline {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size 0.45s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s;
+}
+.link-underline:hover {
+  background-size: 100% 1px;
+}
+
+.scroll-cue {
+  animation: cue 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  transform-origin: top;
+}
+
+@keyframes cue {
+  0% { transform: scaleY(0); opacity: 1; }
+  60% { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 0; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Thin, quiet scrollbars. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
 
 @media (max-width: 767px) {

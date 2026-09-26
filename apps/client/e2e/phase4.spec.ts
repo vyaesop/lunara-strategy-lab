@@ -58,7 +58,7 @@ test("war room: convene three roles, ask a follow-up, record a decision", async 
   await page.locator("select").first().selectOption("opponent");
   await page.getByPlaceholder("Follow-up question").fill("What do you do in week two?");
   await page.getByRole("button", { name: "Ask", exact: true }).click();
-  await expect(page.getByText("You", { exact: true })).toBeVisible();
+  await expect(page.getByText("What do you do in week two?")).toBeVisible();
 
   await page.getByPlaceholder("Decision").fill("Run three weeks of discovery first");
   await page.getByPlaceholder("Rationale").fill("The skeptic's point stands.");

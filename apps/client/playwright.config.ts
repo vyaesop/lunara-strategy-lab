@@ -8,6 +8,7 @@ export default defineConfig({
   testDir: "./e2e",
   timeout: 60_000,
   retries: 0,
+  workers: 2,
   use: {
     baseURL: "http://localhost:5173",
     trace: "retain-on-failure",
